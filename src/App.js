@@ -1,10 +1,8 @@
-import Layout from './components/layout/Layout';
+import AllAnimesPage from './pages/allAnimes';
 
 function App() {
   return (
-    <Layout>
-      Hello World
-    </Layout>
+    <AllAnimesPage />
   );
 }
 
