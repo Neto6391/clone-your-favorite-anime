@@ -15,11 +15,8 @@ function Layout(props) {
         <div className={classes.backgroundColor}>
             <Grid container
                 direction="row"
-            
-                alignItems="center"
-                
                 spacing={0}>
-                    <Grid item xs={1} sm={1} md={1} lg={1} xl={1} position={0} justifyContent="center" alignItems="center">
+                    <Grid item xs={1} sm={1} md={1} lg={1} xl={1}>
                         <MainNavigation />
                     </Grid>
 
@@ -27,7 +24,6 @@ function Layout(props) {
                         <main>
                             { props.children }
                         </main>
-                        
                     </Grid>
             </Grid>
         </div>
