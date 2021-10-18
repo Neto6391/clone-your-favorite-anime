@@ -22,7 +22,10 @@ const useStyles = makeStyles({
   });
 
 function Menu(props) {
-    function disableMenu() {
+    function openMenu() {
+        props.openMenu();
+    }
+    function closeMenu() {
         props.closeMenu();
     }
 
@@ -31,8 +34,9 @@ function Menu(props) {
                 <SwipeableDrawer
                     classes={{ paper: classes.backgroundPaper }}
                         anchor="left"
-                        open={true}
-                        onClose={disableMenu}
+                        open={props.open}
+                        onOpen={openMenu}
+                        onClose={closeMenu}
                     >
                         <Box
                             sx={{ width: 300   }}
@@ -45,7 +49,7 @@ function Menu(props) {
                                     fullWidth
                                     endAdornment={
                                         <InputAdornment position="end">
-                                            <IconButton color="white" edge="end">
+                                            <IconButton size="small" edge="end">
                                                 <SearchIcon  />
                                             </IconButton>
                                         </InputAdornment>

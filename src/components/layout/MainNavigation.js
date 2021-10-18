@@ -6,6 +6,9 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Menu from './Menu';
 
 const useStyles = makeStyles({
+    alignButton: {
+        padding: '12px',
+    },
 
     backgroundMenuColor: {
         color: '#b71c1c'
@@ -26,11 +29,12 @@ function MainNavigation() {
     }
 
      return (
-        <div>
-            <IconButton disableRipple disableFocusRipple style={{ backgroundColor: "transparent" }} onClick={setMenuToShowUp} size="large">
+        <div className={classes.alignButton}>
+            <IconButton disableRipple size="medium" style={{ backgroundColor: "transparent" }} onClick={setMenuToShowUp}>
                 <MenuIcon className={classes.backgroundMenuColor} fontSize="large" />
-                </IconButton>
-                { isMenuShow && <Menu closeMenu={closeMenu}/> }
+            </IconButton>
+            <Menu open={isMenuShow} openMenu={setMenuToShowUp} closeMenu={closeMenu}/>
+            {/* { isMenuShow && <Menu closeMenu={closeMenu}/> } */}
         </div>
     );
 }
