@@ -10,6 +10,7 @@ const useStyles = makeStyles({
 
 function AnimeList(props) {
     const classes = useStyles();
+    
     return (
         <Grid container 
             direction="row"
@@ -18,9 +19,9 @@ function AnimeList(props) {
             spacing={0}
         >
             {props.animes.map((anime, index) => (
-                <List className={classes.spacingListCard}>
-                    <ListItem key={index}>
-                        <AnimeItem titleCard={anime.labelName} />
+                <List component="ul" className={classes.spacingListCard} key={anime.id}>
+                    <ListItem key={anime.id}>
+                        <AnimeItem favorite={anime.favorite} titleCard={anime.title} image={anime.image.small} />
                     </ListItem>
                 </List>
             )
