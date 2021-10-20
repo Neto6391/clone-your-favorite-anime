@@ -1,11 +1,11 @@
 import {  Card, CardActionArea, CardMedia, Grid, IconButton, makeStyles, Typography } from "@material-ui/core";
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import { useEffect, useState } from "react";
+import { useContext, useState } from "react";
+
+import FavoriteContext from "../../store/store-context";
+import NotificationSnackbar from "./NotificationSnackbar";
 
 const useStyles = makeStyles({
-    sizeCard: {
-        maxWidth: '240px'
-    },
     marginCard: {
         margin: '12px',
         marginTop: '0px'
@@ -19,7 +19,6 @@ const useStyles = makeStyles({
     },
 
     iconFavoriteHovered: {
-        color: '#e0e0e0 !important', //quando ativar '#ff5252'
         padding: '8px',
         borderRadius: '100px',
         backgroundColor: 'rgba(0, 0, 0, 0.7) !important',
@@ -27,7 +26,6 @@ const useStyles = makeStyles({
     },
 
     iconFavoriteNoHovered: {
-        color: '#e0e0e0 !important',
         padding: '8px',
         borderRadius: '100px',
         backgroundColor: 'rgba(255, 0, 0, 0.7) !important',
@@ -39,6 +37,7 @@ const useStyles = makeStyles({
       },
     action: {
         position: "relative",
+        maxWidth: '240px',
         "&:hover": {
             filter: 'contrast(170%)'
         }
@@ -47,28 +46,54 @@ const useStyles = makeStyles({
 });
 
 
-
 function AnimeItem(props) {
+    
     const classes = useStyles();
 
     const [isButtonHovered, setHoveredButton] = useState(false);
+    const [getSnackbar,  setSnackbar] = useState({
+        open: false,
+        message: ""
+    });
 
-    useEffect(() => {
-        if (props.favorite) {
-            setHoveredButton(true);
+    const favoriteContext = useContext(FavoriteContext);
+    
+
+    const itemIsFavorite = favoriteContext.itemIsFavorite(props.id);
+
+    function toggleFavoriteStatusHandler() {
+        if (itemIsFavorite) {
+            favoriteContext.removeFavorite(props.id);
+            openSnackbar(true, `${props.titleCard} is removed in favorites`);
+        } else {
+            favoriteContext.addFavorite({
+                id: props.id,
+                title: props.titleCard,
+                synopsis: props.synopsis,
+                image: props.image,
+            });
+            openSnackbar(true, `${props.titleCard} is added to favorites`);
         }
-    }, []);
+    }
+
+    function openSnackbar(open, message) {
+        setSnackbar({open, message});
+    }
+
+    function closeSnackbar() {
+        openSnackbar(false, "");
+    }
 
     return (
         <Grid item className={classes.marginCard}>
-                        <Card className={classes.sizeCard, classes.action}>
+                        <Card className={classes.action}>
                             <CardActionArea 
                                 onClick={() => console.log('teste!')}
                             >
                             <CardMedia 
                                 component="img"
                                 height="340"
-                                image={props.image}
+                                image={props.image.small}
                                 alt={ props.titleCard }
                             />
                                 
@@ -81,12 +106,20 @@ function AnimeItem(props) {
                                     size="small" 
                                     onMouseOver={()=> isButtonHovered ? setHoveredButton(false) : setHoveredButton(true) }
                                     onMouseOut={() => isButtonHovered ? setHoveredButton(false) : setHoveredButton(true) }
-                                    // onClick={}
-                                > 
-                                    { isButtonHovered ? <FavoriteIcon className={classes.iconFavoriteHovered}  fontSize="large" /> : <FavoriteIcon className={classes.iconFavoriteNoHovered}  fontSize="large" /> } 
+                                    onClick={toggleFavoriteStatusHandler}
+                                >     
+                                    <FavoriteIcon 
+                                        className={
+                                            favoriteContext.itemIsFavorite(props.id) ? 
+                                                isButtonHovered ? classes.iconFavoriteNoHovered : classes.iconFavoriteHovered : 
+                                                isButtonHovered ? classes.iconFavoriteHovered : classes.iconFavoriteNoHovered
+                                        }  
+                                        fontSize="large" 
+                                    />   
                                 </IconButton>
                                 
                         </Card>
+            { getSnackbar.open &&  <NotificationSnackbar open={getSnackbar.open} message={getSnackbar.message} afterClose={closeSnackbar} /> } 
         </Grid>
     );
 }
