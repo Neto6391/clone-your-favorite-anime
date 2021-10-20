@@ -29,7 +29,6 @@ function AllAnimesPage() {
                             small: attributes.posterImage.small,
                             tiny:  attributes.posterImage.tiny
                         },
-                        favorite: index === 0 ? true : false 
                     });
                 })
                 
