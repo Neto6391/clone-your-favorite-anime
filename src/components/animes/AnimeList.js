@@ -21,7 +21,13 @@ function AnimeList(props) {
             {props.animes.map((anime, index) => (
                 <List component="ul" className={classes.spacingListCard} key={anime.id}>
                     <ListItem key={anime.id}>
-                        <AnimeItem favorite={anime.favorite} titleCard={anime.title} image={anime.image.small} />
+                        <AnimeItem
+                            key={anime.id}
+                            id={anime.id}
+                            titleCard={anime.title} 
+                            image={anime.image} 
+                            synopsis={anime.synopsis}
+                        />
                     </ListItem>
                 </List>
             )
