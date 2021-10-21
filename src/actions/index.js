@@ -1,4 +1,4 @@
-import { UPDATE_FAVORITE_ANIME, REMOVE_FAVORITE_ANIME } from "./actionTypes";
+import { UPDATE_FAVORITE_ANIME, REMOVE_FAVORITE_ANIME, RESET_FAVORITE_ANIME } from "./actionTypes";
 
 export const updateFavoriteAnime = anime => ({
     type: UPDATE_FAVORITE_ANIME,
@@ -11,3 +11,9 @@ export const removeFavoriteAnime = animeId => {
         id: animeId
     };
 };
+
+export const resetFavoriteAnime = () => {
+    return {
+        type: RESET_FAVORITE_ANIME,
+    };
+}
