@@ -1,4 +1,4 @@
-import { UPDATE_FAVORITE_ANIME, REMOVE_FAVORITE_ANIME } from "../actions/actionTypes";
+import { UPDATE_FAVORITE_ANIME, REMOVE_FAVORITE_ANIME, RESET_FAVORITE_ANIME } from "../actions/actionTypes";
 
 const initialState = {
   favorites: [],
@@ -21,6 +21,13 @@ export const favoriteReducer = (state = initialState, action) => {
         favorites: state.favorites.filter((favorite) => favorite.id !== action.id),
         totalFavorites: state.favorites.length,
       };
+    }
+    case RESET_FAVORITE_ANIME: {
+      return {
+        ...state,
+        favorites: [],
+        totalFavorites: 0
+      }
     }
     default:
       return state;
