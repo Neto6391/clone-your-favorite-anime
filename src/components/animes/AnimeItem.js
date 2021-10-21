@@ -1,8 +1,9 @@
 import {  Card, CardActionArea, CardMedia, Grid, IconButton, makeStyles, Typography } from "@material-ui/core";
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import { useContext, useState } from "react";
+import { useState } from "react";
+import { connect } from 'react-redux';
+import { updateFavoriteAnime, removeFavoriteAnime } from '../../actions';
 
-import FavoriteContext from "../../store/store-context";
 import NotificationSnackbar from "./NotificationSnackbar";
 
 const useStyles = makeStyles({
@@ -47,7 +48,6 @@ const useStyles = makeStyles({
 
 
 function AnimeItem(props) {
-    
     const classes = useStyles();
 
     const [isButtonHovered, setHoveredButton] = useState(false);
@@ -56,23 +56,26 @@ function AnimeItem(props) {
         message: ""
     });
 
-    const favoriteContext = useContext(FavoriteContext);
+    const {
+        removeFavorite,
+        updateFavorite,
+        favorites
+      } = props;
     
-
-    const itemIsFavorite = favoriteContext.itemIsFavorite(props.id);
+    const itemIsFavorite = favorites.some(favorite => favorite.id === props.id);
 
     function toggleFavoriteStatusHandler() {
         if (itemIsFavorite) {
-            favoriteContext.removeFavorite(props.id);
+            removeFavorite(props.id);
             openSnackbar(true, `${props.titleCard} is removed in favorites`);
         } else {
-            favoriteContext.addFavorite({
+            updateFavorite({
                 id: props.id,
                 title: props.titleCard,
                 synopsis: props.synopsis,
                 image: props.image,
             });
-            openSnackbar(true, `${props.titleCard} is added to favorites`);
+            openSnackbar(true, `${props.titleCard} is added in favorites`);
         }
     }
 
@@ -110,7 +113,7 @@ function AnimeItem(props) {
                                 >     
                                     <FavoriteIcon 
                                         className={
-                                            favoriteContext.itemIsFavorite(props.id) ? 
+                                            favorites.some(favorite => favorite.id === props.id) ? 
                                                 isButtonHovered ? classes.iconFavoriteNoHovered : classes.iconFavoriteHovered : 
                                                 isButtonHovered ? classes.iconFavoriteHovered : classes.iconFavoriteNoHovered
                                         }  
@@ -124,5 +127,16 @@ function AnimeItem(props) {
     );
 }
 
-export default AnimeItem;
+const mapStateToProps = store => ({
+    favorites: store.favoriteState.favorites
+});
+
+const mapDispatchToProps = dispatch => (
+  {
+    updateFavorite: anime => dispatch(updateFavoriteAnime(anime)),
+    removeFavorite: animeId => dispatch(removeFavoriteAnime(animeId)),
+  }
+);
+
+export default connect(mapStateToProps, mapDispatchToProps)(AnimeItem);
 
