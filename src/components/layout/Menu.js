@@ -3,9 +3,12 @@ import SearchIcon from '@material-ui/icons/Search';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import FavoriteContext from "../../store/store-context";
-import { useContext, useEffect } from 'react';
-import { red } from '@material-ui/core/colors';
+
+import { connect } from 'react-redux';
+import { removeFavoriteAnime } from '../../actions';
+import { useState } from 'react';
+
+import NotificationSnackbar from "../animes/NotificationSnackbar";
 
 const useStyles = makeStyles({
     paper: {
@@ -27,6 +30,11 @@ const useStyles = makeStyles({
   });
 
 function Menu(props) {
+    const [getSnackbar,  setSnackbar] = useState({
+        open: false,
+        message: ""
+    });
+
     function openMenu() {
         props.openMenu();
     }
@@ -35,9 +43,28 @@ function Menu(props) {
     }
 
     
-
     const classes = useStyles();
-    const favoriteContext = useContext(FavoriteContext);
+    
+    const {
+        removeFavorite,
+        favorites
+      } = props;
+
+    function openSnackbar(open, message) {
+        setSnackbar({open, message});
+    }
+
+    function closeSnackbar() {
+        openSnackbar(false, "");
+    }
+
+    function RemoveItemMenu(e, animeId, title) {
+        e.preventDefault();
+        
+        removeFavorite(animeId);
+        openSnackbar(true, `${title} is removed in favorites`);
+    }
+
 
     return (
                 <SwipeableDrawer
@@ -76,7 +103,7 @@ function Menu(props) {
                                 </ListItem>
                                 
                                 
-                                    { favoriteContext.favorites.map((favoriteItem, index) => {
+                                    { favorites.map((favoriteItem, index) => {
                                         return(
                                             <ListItem key={favoriteItem.id} component="ul">
                                                 <ImageListItem>
@@ -85,21 +112,36 @@ function Menu(props) {
                                                         height="40px"
                                                         width="40px"
                                                         alt={favoriteItem.title}
-                                                        loading="lazy"
+                                                      
                                                     />
                                                 </ImageListItem>
                                                 
                                                 <Box sx={{ margin: 30   }}>
                                                     <ListItemText primary={favoriteItem.title} sx={{ justifyContent: 'center' }} />
                                                 </Box>
+
+                                                <IconButton onClick={(e) => RemoveItemMenu(e, favoriteItem.id, favoriteItem.title)}>
+                                                    <DeleteIcon color="secondary" />
+                                                </IconButton>
                                             </ListItem>
                                         )
                                     })}   
                                 
                             </List>
                         </Box>
+                        { getSnackbar.open &&  <NotificationSnackbar open={getSnackbar.open} message={getSnackbar.message} afterClose={closeSnackbar} /> }
                     </SwipeableDrawer>   
     );
 }
 
-export default Menu;
+const mapStateToProps = store => ({
+    favorites: store.favoriteState.favorites
+});
+
+const mapDispatchToProps = dispatch => (
+  {
+    removeFavorite: animeId => dispatch(removeFavoriteAnime(animeId)),
+  }
+);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Menu);
