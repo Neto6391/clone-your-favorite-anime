@@ -3,6 +3,7 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import { useState } from "react";
 import { connect } from 'react-redux';
 import { updateFavoriteAnime, removeFavoriteAnime } from '../../actions';
+import ModalToShowAnAnime from "./ModalToShowAnAnime";
 
 import NotificationSnackbar from "./NotificationSnackbar";
 
@@ -51,6 +52,8 @@ function AnimeItem(props) {
     const classes = useStyles();
 
     const [isButtonHovered, setHoveredButton] = useState(false);
+    const [isModalOpen, setModalOpen] = useState(false);
+
     const [getSnackbar,  setSnackbar] = useState({
         open: false,
         message: ""
@@ -87,11 +90,15 @@ function AnimeItem(props) {
         openSnackbar(false, "");
     }
 
+    function closeModal() {
+        setModalOpen(false);
+    }
+
     return (
         <Grid item className={classes.marginCard}>
                         <Card className={classes.action}>
                             <CardActionArea 
-                                onClick={() => console.log('teste!')}
+                                onClick={() => setModalOpen(true)}
                             >
                             <CardMedia 
                                 component="img"
@@ -123,6 +130,7 @@ function AnimeItem(props) {
                                 
                         </Card>
             { getSnackbar.open &&  <NotificationSnackbar open={getSnackbar.open} message={getSnackbar.message} afterClose={closeSnackbar} /> } 
+            { !getSnackbar.open && isModalOpen && <ModalToShowAnAnime title={props.titleCard} synopsis={props.synopsis} image={props.image} closeIconbuton={closeModal}  open={isModalOpen} /> }
         </Grid>
     );
 }
