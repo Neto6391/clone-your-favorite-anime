@@ -1,14 +1,16 @@
-import { SwipeableDrawer, ListItem, ListItemIcon, ListItemText, Box, List, InputAdornment, IconButton, InputBase, makeStyles, ImageListItem  } from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
+import { SwipeableDrawer, ListItem, ListItemIcon, ListItemText, Box, List, IconButton, makeStyles, ImageListItem, Typography, Button  } from '@material-ui/core';
+// import SearchIcon from '@material-ui/icons/Search';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import DeleteIcon from '@material-ui/icons/Delete';
+import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 
 
 import { connect } from 'react-redux';
-import { removeFavoriteAnime } from '../../actions';
+import { removeFavoriteAnime, resetFavoriteAnime } from '../../actions';
 import { useState } from 'react';
 
 import NotificationSnackbar from "../animes/NotificationSnackbar";
+import ModalToShowAnAnime from '../animes/ModalToShowAnAnime';
 
 const useStyles = makeStyles({
     paper: {
@@ -26,6 +28,13 @@ const useStyles = makeStyles({
     colorListItem: {
         color: '#b71c1c'
     },
+
+    hoverItemAnime: {
+        "& span:hover": {
+            filter: 'grayscale(1)'
+        }
+        
+    }
     
   });
 
@@ -33,6 +42,13 @@ function Menu(props) {
     const [getSnackbar,  setSnackbar] = useState({
         open: false,
         message: ""
+    });
+
+    const [modal, setModal] = useState({
+        open: false,
+        title: "",
+        synopsis: "",
+        image: {}
     });
 
     function openMenu() {
@@ -47,6 +63,7 @@ function Menu(props) {
     
     const {
         removeFavorite,
+        resetFavorite,
         favorites
       } = props;
 
@@ -65,6 +82,26 @@ function Menu(props) {
         openSnackbar(true, `${title} is removed in favorites`);
     }
 
+    function handleClickOpenModal(e, data) {
+        e.preventDefault();
+        setModal({...data});
+    }
+
+    function closeModal() {
+        setModal({
+            open: false,
+            title: "",
+            synopsis: "",
+            image: {}
+        });
+    }
+
+    function resetStateFavorites(e) {
+        e.preventDefault();
+        resetFavorite();
+        openSnackbar(true, `Favorites removed`);
+    }
+
 
     return (
                 <SwipeableDrawer
@@ -78,58 +115,61 @@ function Menu(props) {
                             sx={{ width: 300   }}
                             role="presentation"
                         >
-                            <div className={classes.backgroundInputSearch}>
-                                <InputBase   
-                                    placeholder="search your favorite anime" 
-                                    type="text" 
-                                    fullWidth
-                                    endAdornment={
-                                        <InputAdornment position="end">
-                                            <IconButton size="small" edge="end">
-                                                <SearchIcon  />
-                                            </IconButton>
-                                        </InputAdornment>
-                                    } 
-                                />
-                            </div>
+                            
                             
                             <List className={classes.colorListItem}>
-                                <ListItem  key={"menu"} >
+                                <ListItem component="span"  key={"menu"} >
                                     <ListItemIcon disabled >
                                         <FavoriteIcon className={classes.colorListItem} />
                                     </ListItemIcon>
-                                    <ListItemText primary={"Favorite Animes"} />
-                                    
+                                    <ListItemText primary="Favorite Animes" />
                                 </ListItem>
-                                
                                 
                                     { favorites.map((favoriteItem, index) => {
                                         return(
-                                            <ListItem key={favoriteItem.id} component="ul">
-                                                <ImageListItem>
-                                                    <img
-                                                        src={favoriteItem.image.tiny}
-                                                        height="40px"
-                                                        width="40px"
-                                                        alt={favoriteItem.title}
-                                                      
-                                                    />
-                                                </ImageListItem>
+                                            <ListItem className={classes.hoverItemAnime} key={favoriteItem.id} component="span" >
+                                                    <ListItem button onClick={(e) => handleClickOpenModal(e, {
+                                                       open: true,
+                                                       title: favoriteItem.title,
+                                                       synopsis: favoriteItem.synopsis,
+                                                       image: favoriteItem.image
+                                                    })} component="span">
+                                                        <ImageListItem style={{ marginLeft: -26 }} >
+                                                            <img
+                                                                src={favoriteItem.image.tiny}
+                                                                height="40px"
+                                                                width="40px"
+                                                                alt={favoriteItem.title}
+                                                            />
+                                                        </ImageListItem>
+                                                        
+                                                        <Box sx={{ margin: 30   }}>
+                                                            <ListItemText primary={favoriteItem.title} sx={{ justifyContent: 'center' }} />
+                                                        </Box>
+                                             
+                                                    </ListItem>
+                                                    
                                                 
-                                                <Box sx={{ margin: 30   }}>
-                                                    <ListItemText primary={favoriteItem.title} sx={{ justifyContent: 'center' }} />
-                                                </Box>
 
                                                 <IconButton onClick={(e) => RemoveItemMenu(e, favoriteItem.id, favoriteItem.title)}>
-                                                    <DeleteIcon color="secondary" />
+                                                    <DeleteIcon style={{ color: 'white' }} />
                                                 </IconButton>
+                                                
                                             </ListItem>
                                         )
-                                    })}   
-                                
+                                    })}
+                                { favorites.length > 0 && (<ListItem style={{ justifyContent: 'center' }}>
+                                    <Button size="large"  onClick={(e) => resetStateFavorites(e)}>
+                                        <DeleteForeverIcon style={{ color: '#b71c1c' }} />
+                                        <ListItemText style={{ color: '#b71c1c', marginLeft: 5 }}>
+                                            <Typography align="center" variant="subheading">CLEAR</Typography>
+                                        </ListItemText>
+                                    </Button>
+                                </ListItem>)}   
                             </List>
                         </Box>
                         { getSnackbar.open &&  <NotificationSnackbar open={getSnackbar.open} message={getSnackbar.message} afterClose={closeSnackbar} /> }
+                        { !getSnackbar.open && modal.open && <ModalToShowAnAnime title={modal.title} synopsis={modal.synopsis} image={modal.image} closeIconbuton={closeModal}  open={modal.open} /> }
                     </SwipeableDrawer>   
     );
 }
@@ -141,6 +181,7 @@ const mapStateToProps = store => ({
 const mapDispatchToProps = dispatch => (
   {
     removeFavorite: animeId => dispatch(removeFavoriteAnime(animeId)),
+    resetFavorite: () => dispatch(resetFavoriteAnime())
   }
 );
 
